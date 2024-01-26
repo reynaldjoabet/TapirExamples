@@ -1,0 +1,14 @@
+import sttp.tapir._
+import sttp.tapir.server.http4s.Http4sServerInterpreter
+import cats.effect.IO
+import org.http4s.HttpRoutes
+
+def countCharacters(s: String): IO[Either[Unit, Int]] =
+  IO.pure(Right[Unit, Int](s.length))
+
+val countCharactersEndpoint: PublicEndpoint[String, Unit, Int, Any] =
+  endpoint.in(stringBody).out(plainBody[Int])
+val countCharactersRoutes: HttpRoutes[IO] =
+  Http4sServerInterpreter[IO]().toRoutes(
+    countCharactersEndpoint.serverLogic(countCharacters _)
+  )
