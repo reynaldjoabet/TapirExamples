@@ -6,10 +6,9 @@ import org.http4s.HttpRoutes
 def countCharacters(s: String): IO[Either[Unit, Int]] =
   IO.pure(Right[Unit, Int](s.length))
 
-  IO(23).attempt
+IO(23).attempt
 val countCharactersEndpoint: PublicEndpoint[String, Unit, Int, Any] =
   endpoint.in(stringBody).out(plainBody[Int])
-
 
 val countCharactersRoutes: HttpRoutes[IO] =
   Http4sServerInterpreter[IO]().toRoutes(

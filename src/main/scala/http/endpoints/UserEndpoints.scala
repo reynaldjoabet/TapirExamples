@@ -8,16 +8,19 @@ import domain.data._
 import sttp.tapir.json.circe._
 trait UserEndpoints extends BaseEndpoint {
 
-  val createUserEndpoint: Endpoint[Unit, RegisterUserAccount, Throwable, UserResponse, Any] = baseEndpoint
-    .tag("users")
-    .name("register")
-    .description("Register a user account with username and password")
-    .in("users")
-    .post
-    .in(jsonBody[RegisterUserAccount])
-    .out(jsonBody[UserResponse])
+  val createUserEndpoint
+      : Endpoint[Unit, RegisterUserAccount, Throwable, UserResponse, Any] =
+    baseEndpoint
+      .tag("users")
+      .name("register")
+      .description("Register a user account with username and password")
+      .in("users")
+      .post
+      .in(jsonBody[RegisterUserAccount])
+      .out(jsonBody[UserResponse])
 
-  val updatePasswordEndpoint: Endpoint[String, UpdatePasswordRequest, Throwable, UserResponse, Any] =
+  val updatePasswordEndpoint
+      : Endpoint[String, UpdatePasswordRequest, Throwable, UserResponse, Any] =
     secureBaseEndpoints
       .tag("users")
       .name("updatePassword")
@@ -27,16 +30,19 @@ trait UserEndpoints extends BaseEndpoint {
       .in(jsonBody[UpdatePasswordRequest])
       .out(jsonBody[UserResponse])
 
-  val deleteEndpoint: Endpoint[String, DeleteAccountRequest, Throwable, UserResponse, Any] = secureBaseEndpoints
-    .tag("users")
-    .name("delete")
-    .description("Delete user account")
-    .in("users")
-    .delete
-    .in(jsonBody[DeleteAccountRequest])
-    .out(jsonBody[UserResponse])
+  val deleteEndpoint
+      : Endpoint[String, DeleteAccountRequest, Throwable, UserResponse, Any] =
+    secureBaseEndpoints
+      .tag("users")
+      .name("delete")
+      .description("Delete user account")
+      .in("users")
+      .delete
+      .in(jsonBody[DeleteAccountRequest])
+      .out(jsonBody[UserResponse])
 
-  val loginTokenEndpoint: Endpoint[Unit, LoginRequest, Throwable, UserToken, Any] = baseEndpoint
+  val loginTokenEndpoint
+      : Endpoint[Unit, LoginRequest, Throwable, UserToken, Any] = baseEndpoint
     .tag("users")
     .name("login")
     .description("Log in and generate a JWT token")
@@ -45,20 +51,24 @@ trait UserEndpoints extends BaseEndpoint {
     .in(jsonBody[LoginRequest])
     .out(jsonBody[UserToken])
 
-  val forgotPasswordEndpoint: Endpoint[Unit, ForgotPasswordRequest, Throwable, Unit, Any] = baseEndpoint
-    .tag("users")
-    .name("forgotPassword")
-    .description("Trigger mail for password recovery")
-    .in("users" / "forgot")
-    .post
-    .in(jsonBody[ForgotPasswordRequest])
+  val forgotPasswordEndpoint
+      : Endpoint[Unit, ForgotPasswordRequest, Throwable, Unit, Any] =
+    baseEndpoint
+      .tag("users")
+      .name("forgotPassword")
+      .description("Trigger mail for password recovery")
+      .in("users" / "forgot")
+      .post
+      .in(jsonBody[ForgotPasswordRequest])
 
-  val recoverPasswordEndpoint: Endpoint[Unit, RecoverPasswordRequest, Throwable, Unit, Any] = baseEndpoint
-    .tag("users")
-    .name("recoverPassword")
-    .description("Set new password based on OTP")
-    .in("users" / "recover")
-    .post
-    .in(jsonBody[RecoverPasswordRequest])
+  val recoverPasswordEndpoint
+      : Endpoint[Unit, RecoverPasswordRequest, Throwable, Unit, Any] =
+    baseEndpoint
+      .tag("users")
+      .name("recoverPassword")
+      .description("Set new password based on OTP")
+      .in("users" / "recover")
+      .post
+      .in(jsonBody[RecoverPasswordRequest])
 
 }

@@ -1,4 +1,5 @@
-package domain.data
+package domain
+package data
 import io.circe.generic.semiauto.deriveCodec
 import io.circe.Codec
 
@@ -15,5 +16,5 @@ final case class Company(
 )
 
 object Company {
- implicit val codec: Codec.AsObject[Company]= deriveCodec[Company] 
+  implicit val codec: Codec.AsObject[Company] = deriveCodec[Company]
 }

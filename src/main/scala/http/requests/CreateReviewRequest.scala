@@ -1,4 +1,3 @@
-
 package http
 package requests
 import io.circe.generic.semiauto.deriveCodec
@@ -13,8 +12,7 @@ final case class CreateReviewRequest(
     review: String
 )
 
-
-object  CreateReviewRequest{
-  implicit val createReviewRequestCodec: Codec.AsObject[CreateReviewRequest]= deriveCodec[CreateReviewRequest]
+object CreateReviewRequest {
+  implicit val createReviewRequestCodec: Codec.AsObject[CreateReviewRequest] =
+    deriveCodec[CreateReviewRequest]
 }
-

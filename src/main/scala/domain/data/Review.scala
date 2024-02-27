@@ -1,4 +1,5 @@
-package domain.data
+package domain
+package data
 import io.circe.generic.semiauto.deriveCodec
 import io.circe.Codec
 
@@ -7,7 +8,7 @@ import java.time.Instant
 final case class Review(
     id: Long, // PK
     companyId: Long,
-    userId: Long,    // FK
+    userId: Long, // FK
     management: Int, // 1-5
     culture: Int,
     salary: Int,
@@ -19,5 +20,5 @@ final case class Review(
 )
 
 object Review {
-implicit val reviewCodec: Codec.AsObject[Review]= deriveCodec[Review]
+  implicit val reviewCodec: Codec.AsObject[Review] = deriveCodec[Review]
 }

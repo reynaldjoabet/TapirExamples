@@ -159,3 +159,201 @@ case class PartialServerEndpoint[SECURITY_INPUT, PRINCIPAL, INPUT, ERROR_OUTPUT,
     }
 
 ```
+An endpoint is represented as a value of type `Endpoint[A, I, E, O, R]`, where:
+
+    A is the type of security input parameters
+
+    I is the type of input parameters
+
+    E is the type of error-output parameters
+
+    O is the type of output parameters
+
+    R are the capabilities that are required by this endpoint’s inputs/outputs, such as support for websockets or a particular non-blocking streaming implementation. Any, if there are no such requirements.
+
+Input/output parameters (A, I, E and O) can be:
+
+    of type Unit, when there’s no input/output
+
+    a single type
+
+    a tuple of types
+
+Hence, an empty, initial endpoint, with no inputs and no outputs, from which all other endpoints are derived has the type:
+
+```scala
+import sttp.tapir._
+
+val endpoint: Endpoint[Unit, Unit, Unit, Unit, Any] = ???
+```
+
+For endpoints which have no security inputs, a type alias is provided which fixes A to Unit:
+
+```scala
+import sttp.tapir._
+
+type PublicEndpoint[I, E, O, -R] = Endpoint[Unit, I, E, O, R]
+```
+When interpreted as a server, these endpoints are decoded first, and are used to run the security logic, which should authenticate (or reject) the request. The result of the security logic is typically a value, such as an authenticated User instance. What’s important is that this takes place before body decoding is done; hence, the body is read and parsed only if the request passed authentication
+
+The last security-related feature that has been added is the possibility to hide endpoints that need authentication. By default, if an endpoint needs e.g. an API key in the Authorization header, and such a value is missing from the request, the tapir server interpreter will return a 401 Unauthorized with the appropriate WWW-Authenticate header. This is not always desired; you might want to return a 404 Not Found instead, hiding information that such endpoints exist at all. 
+
+
+
+
+[security-tapir](https://softwaremill.com/security-improvements-in-tapir-0-19/)
+
+
+
+
+## Git Worktree
+allows you to work with multiple working directories attached to the same repository.
+Each worktree operates independently, allowing you to switch branches and make changes without affecting other worktrees or the main repository.Remember that worktrees share the same repository data, so any commits or changes made in one worktree will be visible in all other worktrees and the main repository.
+Isolation: Each worktree has its own working directory and index, allowing you to work on different branches or changes simultaneously without interference.
+
+Efficiency: Worktrees are lightweight and do not require copying the entire repository, saving disk space and time compared to cloning a new repository for each task.
+
+Shared Repository Data: While worktrees provide isolation for your working directory and index, they share the same repository data, including commits, branches, tags, and configuration.
+
+Branch Management: You can create new branches within a worktree, switch branches, merge changes, and perform other branch-related operations independently in each worktree.
+
+Visibility: Worktrees are visible to Git commands as if they were regular directories within the repository. However, they are stored in a separate location from the main repository (by default, in a directory named .git/worktrees).
+
+Cleaning Up: It's essential to manage your worktrees properly to avoid cluttering your system. You can use the git worktree prune command to remove stale worktrees (ones that have been deleted or moved) from the repository's metadata.
+
+Use Cases: Git worktrees are particularly useful for scenarios like working on multiple features simultaneously, testing changes in different environments, maintaining long-lived branches for specific tasks, or experimenting with new ideas without affecting the main working directory.
+
+"working tree" are the actual files you see in the folder when you checkout a branch (excluding the special .git folder). When you checkout a different branch, git updates all the files on disk to match the files in the new branch. You can have many branches in your repository, but only one of these will be "checked out" as the working-tree so that you can work on it and make changes.
+
+git worktree adds the concept of additional working trees. This means you can have two (or more) branches checked-out at once
+
+# Creating a working tree from a new branch
+git worktree has a handy -b option to both create a new branch and check it out in the new working tree
+
+```bash
+git worktree add ../app-example-2 origin/main -b bug-fix
+Preparing worktree (new branch 'bug-fix')
+Branch 'bug-fix' set up to track remote branch 'main' from 'origin'.
+HEAD is now at 37ae55f Merge pull request #417 from some-natalie/main
+```
+
+
+This example creates a new branch, bug-fix from the origin/main branch, and then checks it out at ../app-example-2. It can be removed from the main working tree by running git worktree remove ../app-example-2
+
+
+
+
+[schemas](https://disneystreaming.github.io/smithy4s/docs/design/schemas/)
+
+## Schemas
+
+For a Scala type called Foo, formulating a Schema[Foo] is equivalent to exhaustively capturing the information needed for the serialisation and deserialisation of Foo in any format (JSON, XML, ...). Indeed, for any Codec[_] construct provided by third-party libraries, it is possible to write a generic def compile(schema: Schema[A]): Codec[A] function that produces the Codec for A based on the information held by the Schema.
+
+
+Describes the type `T`: its low-level representation, meta-data and validation rules.
+
+## Structures
+A structure, also referred to as product, or record, is a construct that groups several values together. Typically, it translates naturally to a case class.
+
+Tapir allows you to define endpoints using a combination of types and functions. Schemas play a crucial role in defining these types, particularly in specifying the shape of the input and output data. Here's how Tapir uses schemas:
+
+Defining Input and Output Data: Tapir lets you define the input and output data of your API endpoints using case classes, tuples, or primitive types. These data structures effectively act as schemas describing the format of the data being sent or received.
+
+Automatic Conversion: Tapir can automatically convert between Scala types and various serialization formats such as JSON or XML. Schemas help Tapir understand how to serialize and deserialize data between these formats and Scala types.
+
+Validation: Schemas can be used for input validation. Tapir allows you to define constraints on input data using schemas, ensuring that incoming data adheres to the expected format and structure.
+
+Documentation: Schemas serve as documentation for your API endpoints. Tapir can generate documentation for your API based on the schemas you provide, making it easier for developers to understand how to interact with your API.
+
+Error Handling: Schemas can also be used to define error responses in Tapir. By specifying the schema for error responses, you can ensure that error messages returned by your API endpoints adhere to a consistent format. This can simplify error handling on the client side and improve the overall robustness of your API.
+
+OpenAPI Documentation: Tapir can automatically generate OpenAPI documentation for your Scala web APIs based on the endpoint descriptions you provide. Schemas are a crucial part of this documentation generation process, as they define the structure of request and response bodies, query parameters, path parameters, etc. Tapir leverages these schemas to produce accurate and comprehensive API documentation that developers can use to understand and interact with your API.
+
+Testing: Schemas can be used in conjunction with property-based testing frameworks like ScalaCheck to automatically generate test data for your API endpoints. By defining schemas for input and output types, you can generate a wide range of test cases to ensure that your API behaves correctly under various conditions. This can help uncover edge cases and potential bugs in your API implementation.
+Schema Generation: Tapir can also generate JSON Schemas or other schema formats from your Scala data types. These generated schemas can be useful for various purposes, such as interoperability with other systems, data validation outside of your API endpoints, or documentation generation in formats other than OpenAPI. Tapir's ability to automatically generate schemas from Scala types eliminates the need for manual schema definition, reducing duplication and ensuring consistency between your data models and API endpoints.
+
+Schema-Based Code Generation: Tapir can be used in conjunction with code generation tools to generate Scala code based on your API schemas. This capability allows you to automate the generation of client libraries, server implementations, or other components that interact with your API. By using schemas as the source of truth for code generation, Tapir ensures that the generated code accurately reflects the structure and constraints of your API endpoints, reducing the risk of inconsistencies or errors in your codebase.
+
+```scala
+
+trait TapirJsonCirce {
+  def jsonBody[T: Encoder: Decoder: Schema]: EndpointIO.Body[String, T] = stringBodyUtf8AnyFormat(circeCodec[T])
+
+  def jsonBodyWithRaw[T: Encoder: Decoder: Schema]: EndpointIO.Body[String, (String, T)] = stringBodyUtf8AnyFormat(
+    implicitly[JsonCodec[(String, T)]]
+  )
+
+
+  implicit val schemaForCirceJson: Schema[Json] = Schema.any
+  implicit val schemaForCirceJsonObject: Schema[JsonObject] = Schema.anyObject[JsonObject].name(SName("io.circe.JsonObject"))
+}
+
+```
+
+
+Codec instances are used as implicit values, and are looked up when defining endpoint inputs/outputs. Depending on a particular endpoint
+   input/output, it might require a codec which uses a specific format, or a specific low-level value.
+
+a codec is a component or library that provides the functionality to encode (serialize) and decode (deserialize) data between different representations or formats.
+
+   ```scala
+implicit val schemaForLanguageCode: Schema[LanguageCode] = Schema.string
+implicit val schemaForProductName: Schema[ProductName] = Schema.string
+   ```
+
+### things we can do with Schemas
+  - Encoding and decoding( separating the structure from how to encode the structure)
+  - Migration
+  -Validation
+
+we can generate a Codec based on the Schema
+we can generate binaryCodec, Json Codec based on the Schema
+
+Using schemas, you can automate the generation of codecs for data types. By introspecting the structure of a schema, you can generate encoder and decoder implementations that serialize and deserialize data according to the schema's specifications
+
+ZIO Schema allows us to create representations of our data types as values
+Once we have a representation of our data types, we can use it to
+
+    Serialize and deserialize our types
+    Validate our types
+    Transform our types
+    Create instances of your types
+
+We can then use one of the various codecs (or create our own) to serialize and deserialize your types.
+
+Example of possible codecs are:
+
+- CSV Codec
+- JSON Codec (already available)
+- Apache Avro Codec (in progress)
+- Apache Thrift Codec (in progress)
+- XML Codec
+- YAML Codec
+- Protobuf Codec (already available)
+- QueryString Codec
+- etc.
+
+Example use cases that are possible:
+
+- Serializing and deserializing JSON
+- Serializing and deserializing XML
+- Validating JSON
+- Validating XML
+- Transforming JSON
+- Transforming XML
+- Transforming JSON to XML
+- Transforming XML to JSON
+- Creating diffs from arbitrary data structures
+- Creating migrations / evolutions e.g. of Events used in Event-Sourcing
+- Transformation pipelines, e.g.
+- Convert from protobuf to object, e.g. PersonDTO,
+- Transform to another representation, e.g. Person,
+- Validate
+- Transform to JSON JsonObject
+- Serialize to String
+
+## Optics
+It is nothing more than a data type that models as a value the concept of a field(lens) and the concept of some number of terms of an enumeration(prism). A prism reifies the concept of selecting one these terms. a traversal reifies the concept of selecting all the elements of a collection
+
+
+  

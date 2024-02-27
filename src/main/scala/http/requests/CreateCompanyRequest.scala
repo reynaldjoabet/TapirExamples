@@ -14,8 +14,7 @@ final case class CreateCompanyRequest(
   // def toCompany(id: Long): Company =
   //   Company(id, Company.makeSlug(name), name, url, location, country, industry, image, tags.getOrElse(List.empty))
 }
-object CreateCompanyRequest{
-  implicit val createCompanyRequestCodec: Codec.AsObject[CreateCompanyRequest]= deriveCodec[CreateCompanyRequest]
+object CreateCompanyRequest {
+  implicit val createCompanyRequestCodec: Codec.AsObject[CreateCompanyRequest] =
+    deriveCodec[CreateCompanyRequest]
 }
-
-
