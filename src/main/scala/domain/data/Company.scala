@@ -2,6 +2,7 @@ package domain
 package data
 import io.circe.generic.semiauto.deriveCodec
 import io.circe.Codec
+import sttp.tapir.Schema
 
 final case class Company(
     id: Long,

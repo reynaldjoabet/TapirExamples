@@ -54,7 +54,7 @@ object ProductRoutes {
     ) ++
       NonEmptySet.one(
         Translation(
-          lang =LanguageCode("en"),
+          lang = LanguageCode("en"),
           name = ProductName("That's a name.")
         )
       ) ++

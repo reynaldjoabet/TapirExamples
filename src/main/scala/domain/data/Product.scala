@@ -43,7 +43,7 @@ object Product {
   implicit val translationSchemaSet: Schema[NonEmptySet[Translation]] =
     schemaForNonEmptySet[Translation]
 
-    //translationSchema.validate()
+  // translationSchema.validate()
   /** magnolia: could not find Schema.Typeclass for type
     * cats.data.NonEmptySet[domain.data.Translation] in parameter 'names' of
     * product type domain.data.Product
@@ -57,7 +57,9 @@ object Product {
     * @return
     *   An option to the successfully created Product.
     */
-  def fromDatabase(rows: Seq[(ProductId, LanguageCode, ProductName)]): Option[Product] = {
+  def fromDatabase(
+      rows: Seq[(ProductId, LanguageCode, ProductName)]
+  ): Option[Product] = {
     val po = for {
       (id, c, n) <- rows.headOption
       t = Translation(lang = c, name = n)

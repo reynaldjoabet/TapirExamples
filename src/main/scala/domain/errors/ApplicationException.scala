@@ -1,4 +1,5 @@
-package domain.errors
+package domain
+package errors
 import io.circe.generic.semiauto.deriveCodec
 import io.circe.Codec
 abstract class ApplicationException(message: String)

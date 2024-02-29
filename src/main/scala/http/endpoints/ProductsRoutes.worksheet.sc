@@ -74,38 +74,39 @@ object ProductsRoutes {
       names = NonEmptySet.one(
         Translation(
           lang = LanguageCode("de"),
-                  name =ProductName("Das ist ein Name.")
-                )
-              ) ++
-                NonEmptySet.one(
-                  Translation(
-                    lang = LanguageCode("en"),
-                    name = ProductName("That's a name.")
-                  )
-                ) ++
-                NonEmptySet.one(
-                  Translation(
-                    lang = LanguageCode("es"),
-                    name = ProductName("Ese es un nombre.")
-                  )
-                )
-            ),
-            Product(
-              id = java.util.UUID.randomUUID,
-              names = NonEmptySet.one(
-                Translation(
-                  lang = LanguageCode("de"),
-                  name = ProductName("Das sind nicht die Droiden, nach denen sie suchen!")
-                )
-              ) ++
-                NonEmptySet.one(
-                  Translation(
-                    lang = LanguageCode("en"),
-                    name = ProductName("These are not the droids you're looking for!")
-                  )
-                )
-            )
+          name = ProductName("Das ist ein Name.")
+        )
+      ) ++
+        NonEmptySet.one(
+          Translation(
+            lang = LanguageCode("en"),
+            name = ProductName("That's a name.")
           )
+        ) ++
+        NonEmptySet.one(
+          Translation(
+            lang = LanguageCode("es"),
+            name = ProductName("Ese es un nombre.")
+          )
+        )
+    ),
+    Product(
+      id = java.util.UUID.randomUUID,
+      names = NonEmptySet.one(
+        Translation(
+          lang = LanguageCode("de"),
+          name =
+            ProductName("Das sind nicht die Droiden, nach denen sie suchen!")
+        )
+      ) ++
+        NonEmptySet.one(
+          Translation(
+            lang = LanguageCode("en"),
+            name = ProductName("These are not the droids you're looking for!")
+          )
+        )
+    )
+  )
 
   def getProducts[F[_]]
       : Endpoint[Unit, Unit, StatusCode, Stream[F, Byte], Fs2Streams[F]] =
@@ -117,7 +118,7 @@ object ProductsRoutes {
           CodecFormat.Json(),
           Option(StandardCharsets.UTF_8)
         )
-        //.example(examples.toList.asJson.spaces2)
+        // .example(examples.toList.asJson.spaces2)
       )
       .description(
         "Return all existing products in JSON format as a stream of bytes."

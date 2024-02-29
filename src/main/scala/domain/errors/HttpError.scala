@@ -1,4 +1,5 @@
-package domain.errors
+package domain
+package errors
 
 import sttp.model.StatusCode
 import io.circe.generic.semiauto.deriveCodec

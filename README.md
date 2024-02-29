@@ -352,6 +352,185 @@ Example use cases that are possible:
 - Transform to JSON JsonObject
 - Serialize to String
 
+
+ZIO Json Encoder converts from case class to string while the decoder converts from string to case class
+
+in ZIO Schema-json, the Schema  structure is used to encode or decode to json using internals of zio-json. it generates codecs without making use of macros
+
+
+
+In http4s, circe encoder is used to convert from case class to Json and EntityEncoders take from Json to Bytes
+
+
+the Decoders convert from  Json to case class but before that, EntityDecoders convert from bytes to Json
+
+
+In tapir, 
+
+```scala
+  def jsonBody[T: Encoder: Decoder: Schema]: EndpointIO.Body[String, T] = stringBodyUtf8AnyFormat(circeCodec[T])
+ implicit val schemaForCirceJson: Schema[Json] = Schema.any
+
+  implicit def circeCodec[T: Encoder: Decoder: Schema]: JsonCodec[T] =
+    sttp.tapir.Codec.json[T] { s =>
+      io.circe.parser.decodeAccumulating[T](s) match {
+        case Validated.Valid(v) => Value(v)
+        case Validated.Invalid(circeFailures) =>
+          val tapirJsonErrors = circeFailures.map {
+            case ParsingFailure(msg, _) => JsonError(msg, path = List.empty)
+            case failure: DecodingFailure =>
+              val path = CursorOp.opsToPath(failure.history)
+              val fields = path.split("\\.").toList.filter(_.nonEmpty).map(FieldName.apply)
+              JsonError(failure.message, fields)
+          }
+
+          Error(
+            original = s,
+            error = JsonDecodeException(
+              errors = tapirJsonErrors.toList,
+              underlying = Errors(circeFailures)
+            )
+          )
+      }
+    } { t => jsonPrinter.print(t.asJson) }
+```
+is used to convert from Json to  string
+
+
+```scala
+trait CodecFormat {
+  def mediaType: MediaType
+}
+
+object CodecFormat {
+  case class Json() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.ApplicationJson
+  }
+
+  case class Grpc() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.unsafeApply(mainType = "application", subType = "grpc")
+  }
+
+  case class Xml() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.ApplicationXml
+  }
+
+  case class TextPlain() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.TextPlain
+  }
+
+  case class TextHtml() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.TextHtml
+  }
+
+  case class OctetStream() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.ApplicationOctetStream
+  }
+
+  case class XWwwFormUrlencoded() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.ApplicationXWwwFormUrlencoded
+  }
+
+  case class MultipartFormData() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.MultipartFormData
+  }
+
+  case class Zip() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.ApplicationZip
+  }
+
+  case class TextEventStream() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.TextEventStream
+  }
+
+  case class TextJavascript() extends CodecFormat {
+    override val mediaType: MediaType = MediaType.TextJavascript
+  }
+}
+  /*
+  * @tparam L
+  *   The type of the low-level value.
+  * @tparam H
+  *   The type of the high-level value.
+  * @tparam CF
+  *   The format of encoded values. Corresponds to the media type
+  */ 
+trait Codec[L, H, +CF <: CodecFormat] { outer =>
+def rawDecode(l: L): DecodeResult[H]
+  def encode(h: H): L
+def schema: Schema[H]
+def format: CF
+/*
+By providing both forward (f: H => HH) and backward (g: HH => H) transformations, Tapir ensures that you can round-trip values through the codec without losing information.
+This is essential for maintaining data integrity and consistency, especially in scenarios where you need to encode and decode values repeatedly
+*/
+def map[HH](f: H => HH)(g: HH => H): Codec[L, HH, CF]= ???
+}
+object Codec{
+    type PlainCodec[T] = Codec[String, T, CodecFormat.TextPlain]
+  type JsonCodec[T] = Codec[String, T, CodecFormat.Json]
+  type XmlCodec[T] = Codec[String, T, CodecFormat.Xml]
+
+// identity
+  def id[L, CF <: CodecFormat](f: CF, s: Schema[L]): Codec[L, L, CF] =
+    new Codec[L, L, CF] {
+      override def rawDecode(l: L): DecodeResult[L] = Value(l)
+      override def encode(h: L): L = h
+      override def schema: Schema[L] = s
+      override def format: CF = f
+    }
+}
+
+```
+
+First we need to understand that a ZIO Schema is basically built-up from these three sealed traits: Record[R], Enum[A] and Sequence[Col, Elem], along with the case class Primitive[A]. Every other type is just a specialisation of one of these 
+The core data type of ZIO Schema is a Schema[A] which is invariant in A by necessity, because a Schema allows us to derive operations that produce an A but also operations that consume an A and that imposes limitations on the types of transformation operators and composition operators that we can provide based on a Schema.
+
+```scala
+sealed trait Schema[A] { self =>
+  def zip[B](that: Schema[B]): Schema[(A, B)]
+
+  def transform[B](f: A => B, g: B => A): Schema[B]
+}
+
+```
+
+To describe scalar data type A, we use the Primitive[A] data type which basically is a wrapper around StandardType:
+```scala
+case class Primitive[A](standardType: StandardType[A]) extends Schema[A]
+```
+
+Primitive values are represented using the `Primitive[A]` type class and represent the elements, that we cannot further define through other means. If we visualize our data structure as a tree, primitives are the leaves
+
+ZIO Schema provides a number of built-in primitive types, that we can use to represent our data. These can be found in the StandardType companion-object:
+
+```scala
+
+sealed trait StandardType[A]
+object StandardType {
+  implicit object UnitType   extends StandardType[Unit]
+  implicit object StringType extends StandardType[String]
+  implicit object BoolType   extends StandardType[Boolean]
+  // ...
+}
+```
+
+
+Inside Schema's companion object, we have an implicit conversion from StandardType[A] to Schema[A]:
+
+```scala    
+  implicit def primitive[A](implicit standardType: StandardType[A]): Schema[A] =
+    Primitive(standardType, Chunk.empty)
+```
+So we can easily create a Schema for a primitive type A either by calling Schema.`primitive[A]` or by calling `Schema.apply[A]`:
+```scala
+val intSchema1: Schema[Int] = Schema[Int]
+val intSchema2: Schema[Int] = Schema.primitive[Int]
+```
+
+A Schema like your database Schema describes the structure of your data
+
+[schema](https://zio.dev/zio-schema/basic-building-blocks/#map)
 ## Optics
 It is nothing more than a data type that models as a value the concept of a field(lens) and the concept of some number of terms of an enumeration(prism). A prism reifies the concept of selecting one these terms. a traversal reifies the concept of selecting all the elements of a collection
 
