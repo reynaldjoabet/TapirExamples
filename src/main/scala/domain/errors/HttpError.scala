@@ -4,6 +4,7 @@ package errors
 import sttp.model.StatusCode
 import io.circe.generic.semiauto.deriveCodec
 import io.circe.Codec
+
 final case class HttpError(
     statusCode: StatusCode,
     message: String,

@@ -7,6 +7,7 @@ import http.requests._
 import domain.data._
 import sttp.tapir.json.circe._
 import sttp.tapir.json.circe.jsonBody
+
 trait ReviewEndpoints extends BaseEndpoint {
 
   val createReviewEndpoint
