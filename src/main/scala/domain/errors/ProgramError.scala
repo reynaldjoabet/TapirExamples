@@ -1,7 +1,7 @@
 package domain
 package errors
 
-trait ProgramError 
+trait ProgramError
 object ProgramError {
   sealed trait ServiceError extends ProgramError
   trait RepositoryError extends ProgramError

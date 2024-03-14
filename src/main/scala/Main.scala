@@ -35,4 +35,34 @@ object Main extends App {
     .options
 
   Http4sServerInterpreter(customServerOptions) // .toRoutes( ???)
+
+  import sttp.tapir._
+  import sttp.tapir.json.circe._
+  import sttp.tapir.generic.auto._
+  import sttp.model.StatusCode
+  import io.circe.generic.auto._
+
+  sealed trait ErrorInfo
+  case class NotFound(what: String) extends ErrorInfo
+  case class Unauthorized(realm: String) extends ErrorInfo
+  case class Unknown(code: Int, msg: String) extends ErrorInfo
+  case object NoContent extends ErrorInfo
+
+  // here we are defining an error output, but the same can be done for regular outputs
+  val baseEndpoint = endpoint.errorOut(
+    oneOf[ErrorInfo](
+      oneOfVariant(
+        statusCode(StatusCode.NotFound)
+          .and(jsonBody[NotFound].description("not found"))
+      ),
+      oneOfVariant(
+        statusCode(StatusCode.Unauthorized)
+          .and(jsonBody[Unauthorized].description("unauthorized"))
+      ),
+      oneOfVariant(
+        statusCode(StatusCode.NoContent).and(emptyOutputAs(NoContent))
+      ),
+      oneOfDefaultVariant(jsonBody[Unknown].description("unknown"))
+    )
+  )
 }

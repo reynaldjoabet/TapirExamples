@@ -31,8 +31,3 @@ object ErrorInfo {
     implicit val encoder: Encoder[Unknown] = deriveEncoder[Unknown]
   }
 }
-
-
-
-
-

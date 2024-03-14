@@ -10,18 +10,12 @@ import domain.data._
 import domain.errors.ErrorInfo
 import sttp.tapir.generic.auto._
 import domain.errors.ProgramError.{
-    CountryNotFound,
-    DuplicateEntityError,
-    ServiceError
-  }
-import domain.errors.ErrorInfo.{
-    Conflict,
-    NotFound,
-    Unauthorized,
-    Unknown
-  }
+  CountryNotFound,
+  DuplicateEntityError,
+  ServiceError
+}
+import domain.errors.ErrorInfo.{Conflict, NotFound, Unauthorized, Unknown}
 import sttp.tapir.json.circe._
-
 
 object CountryEndpoints {
   // ServiceError => ApiError
@@ -31,8 +25,6 @@ object CountryEndpoints {
       case DuplicateEntityError(entity) => Conflict(entity)
       case _                            => Unknown("Service Error")
     }
-
-  
 
   val commonMappings = List(
     oneOfVariant(
@@ -93,7 +85,8 @@ object CountryEndpoints {
       .errorOut(
         oneOf[ErrorInfo](
           oneOfVariant(
-            statusCode(StatusCode.NoContent).and(emptyOutputAs(ErrorInfo.NoContent))
+            statusCode(StatusCode.NoContent)
+              .and(emptyOutputAs(ErrorInfo.NoContent))
           ),
           (oneOfVariant(
             statusCode(StatusCode.Conflict)
@@ -116,7 +109,8 @@ object CountryEndpoints {
       .errorOut(
         oneOf[ErrorInfo](
           oneOfVariant(
-            statusCode(StatusCode.NoContent).and(emptyOutputAs(ErrorInfo.NoContent))
+            statusCode(StatusCode.NoContent)
+              .and(emptyOutputAs(ErrorInfo.NoContent))
           ),
           commonMappings: _*
         )

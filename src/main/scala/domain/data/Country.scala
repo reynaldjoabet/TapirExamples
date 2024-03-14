@@ -13,7 +13,6 @@ object Country {
     def toView(): Seq[CountryView] =
       models.map(_.toView())
 
-    
   }
   implicit val schema: Schema[Country] = Schema.derived[Country]
 }
