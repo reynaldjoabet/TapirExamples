@@ -1,3 +1,4 @@
+import scala.annotation.StaticAnnotation
 import sttp.capabilities.WebSockets
 import sttp.capabilities.fs2.Fs2Streams
 import sttp.tapir._
@@ -31,3 +32,16 @@ val wsRoutes: WebSocketBuilder2[IO] => HttpRoutes[IO] =
   Http4sServerInterpreter[IO]().toWebSocketRoutes(
     wsEndpoint.serverLogicSuccess[IO](_ => ???)
   )
+
+
+  class Author(name: String) extends StaticAnnotation
+
+  @Author("John Doe")
+  class MyClass {
+    // class definition
+  }
+
+
+  val m= new MyClass()
+
+  

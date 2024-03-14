@@ -535,4 +535,23 @@ A Schema like your database Schema describes the structure of your data
 It is nothing more than a data type that models as a value the concept of a field(lens) and the concept of some number of terms of an enumeration(prism). A prism reifies the concept of selecting one these terms. a traversal reifies the concept of selecting all the elements of a collection
 
 
+
+```scala
+
+lazy val `tapir-anyof` = module
+  .settings(scalacOptions += "-Ymacro-annotations")
+  .settings(libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-core" % "1.9.10")
+  .settings(libraryDependencies += "com.chuusai" %% "shapeless" % "2.3.10")
+  .settings(libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.1" % Test)
+  .settings(libraryDependencies += "com.alejandrohdezma" %% "http4s-munit" % "0.15.1" % Test)
+  .settings(libraryDependencies += "io.circe" %% "circe-generic-extras" % "0.14.3" % Test)
+  .settings(libraryDependencies += "org.http4s" %% "http4s-circe" % "0.23.25" % Test)
+  .settings(libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-derevo" % "1.9.10" % Test)
+  .settings(libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "1.9.10" % Test)
+  .settings(libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "1.9.10" % Test)
+  .settings(libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % "1.9.10" % Test)
+  .settings(libraryDependencies += "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml" % "0.7.4" % Test)
+  .settings(addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full)) 
+
+```
   

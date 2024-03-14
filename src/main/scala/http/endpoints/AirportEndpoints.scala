@@ -3,34 +3,27 @@ import sttp.tapir._
 import domain.errors._
 import domain.data._
 import sttp.tapir.json.circe._
-import sttp.model.{StatusCode,HeaderNames}
+import sttp.model.{StatusCode, HeaderNames}
 import domain.errors.ErrorInfo
 import sttp.tapir.generic.auto._
 import domain.errors.ProgramError.{
-    CountryNotFound,
-    DuplicateEntityError,
-    ServiceError
-  }
-import domain.errors.ErrorInfo.{
-    Conflict,
-    NotFound,
-    Unauthorized,
-    Unknown
-  }
+  CountryNotFound,
+  DuplicateEntityError,
+  ServiceError
+}
+import domain.errors.ErrorInfo.{Conflict, NotFound, Unauthorized, Unknown}
 
 object AirportEndpoints {
   lazy val airportsResource = "airports"
   lazy val airportPath = airportsResource
   lazy val iataCodePath = path[String]("iataCode")
 
-def manageError(serviceError: ServiceError): ErrorInfo =
+  def manageError(serviceError: ServiceError): ErrorInfo =
     serviceError match {
       case CountryNotFound(code)        => NotFound(code)
       case DuplicateEntityError(entity) => Conflict(entity)
       case _                            => Unknown("Service Error")
     }
-
-
 
   val commonMappings = List(
     oneOfVariant(
@@ -73,7 +66,8 @@ def manageError(serviceError: ServiceError): ErrorInfo =
       .errorOut(
         oneOf[ErrorInfo](
           oneOfVariant(
-            statusCode(StatusCode.NoContent).and(emptyOutputAs(ErrorInfo.NoContent))
+            statusCode(StatusCode.NoContent)
+              .and(emptyOutputAs(ErrorInfo.NoContent))
           ),
           commonMappings: _*
         )
@@ -93,7 +87,8 @@ def manageError(serviceError: ServiceError): ErrorInfo =
       .errorOut(
         oneOf[ErrorInfo](
           oneOfVariant(
-            statusCode(StatusCode.NoContent).and(emptyOutputAs(ErrorInfo.NoContent))
+            statusCode(StatusCode.NoContent)
+              .and(emptyOutputAs(ErrorInfo.NoContent))
           ),
           commonMappings: _*
         )

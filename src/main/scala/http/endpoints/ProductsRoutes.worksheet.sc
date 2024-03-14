@@ -118,7 +118,7 @@ object ProductsRoutes {
           CodecFormat.Json(),
           Option(StandardCharsets.UTF_8)
         )
-         //.example(examples.toList.asJson.spaces2)
+        // .example(examples.toList.asJson.spaces2)
       )
       .description(
         "Return all existing products in JSON format as a stream of bytes."
