@@ -9,6 +9,8 @@
  * extent allowed by law.
  */
 
+import java.nio.charset.StandardCharsets
+
 import cats.data._
 import cats.effect._
 import cats.implicits._
@@ -16,6 +18,8 @@ import cats.implicits._
 // import com.wegtam.books.pfhais.tapir.models._
 // import eu.timepit.refined.auto._
 import fs2.Stream
+
+import domain.data._
 import io.circe.syntax._
 import org.http4s._
 // import org.http4s.circe._
@@ -25,8 +29,6 @@ import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.http4s._
-import java.nio.charset.StandardCharsets
-import domain.data._
 //import domain.data._
 // final class ProductsRoutes[F[_]: Async](repo: Repository[F]) extends Http4sDsl[F] {
 //   implicit def decodeProduct: EntityDecoder[F, Product] = jsonOf
@@ -68,6 +70,7 @@ import domain.data._
 // }
 
 object ProductsRoutes {
+
   val examples: NonEmptyList[Product] = NonEmptyList.of(
     Product(
       id = java.util.UUID.randomUUID,
@@ -95,8 +98,7 @@ object ProductsRoutes {
       names = NonEmptySet.one(
         Translation(
           lang = LanguageCode("de"),
-          name =
-            ProductName("Das sind nicht die Droiden, nach denen sie suchen!")
+          name = ProductName("Das sind nicht die Droiden, nach denen sie suchen!")
         )
       ) ++
         NonEmptySet.one(
@@ -108,9 +110,9 @@ object ProductsRoutes {
     )
   )
 
-  def getProducts[F[_]]
-      : Endpoint[Unit, Unit, StatusCode, Stream[F, Byte], Fs2Streams[F]] =
-    endpoint.get
+  def getProducts[F[_]]: Endpoint[Unit, Unit, StatusCode, Stream[F, Byte], Fs2Streams[F]] =
+    endpoint
+      .get
       .in("products")
       .errorOut(statusCode)
       .out(
@@ -125,7 +127,8 @@ object ProductsRoutes {
       )
 
   val createProduct: Endpoint[Unit, Product, StatusCode, Unit, Any] =
-    endpoint.post
+    endpoint
+      .post
       .in("products")
       .in(
         jsonBody[Product]
@@ -134,10 +137,9 @@ object ProductsRoutes {
       )
       .errorOut(statusCode)
       .out(
-        statusCode(StatusCode.NoContent)
-          .description(
-            "Upon successful product creation no content is returned."
-          )
+        statusCode(StatusCode.NoContent).description(
+          "Upon successful product creation no content is returned."
+        )
       )
       .description(
         "Creates a new product. The product data has to be passed encoded as JSON in the request body. If the product creation failes then a HTTP 500 error is returned."

@@ -1,10 +1,13 @@
 package domain
 
 import java.util.UUID
+
 import cats.kernel.Order
+
+import io.circe.{Codec, Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveCodec, deriveDecoder, deriveEncoder}
-import io.circe.{Codec, Encoder, Decoder}
 import sttp.tapir._
+
 package object data {
 
 // A language code format according to ISO 639-1. Please note that this only verifies the format!
@@ -29,8 +32,10 @@ package object data {
     }
 
   implicit val orderProductId: Order[ProductId] = new Order[ProductId] {
+
     def compare(x: ProductId, y: ProductId): Int =
       x.toString.compare(y.toString)
+
   }
 
   implicit val orderProductName: Order[ProductName] = new Order[ProductName] {

@@ -1,8 +1,9 @@
-import domain.data._
 import cats._
 import cats.data.NonEmptySet
 import cats.effect._
 import cats.implicits._
+
+import domain.data._
 // import com.wegtam.books.pfhais.tapir.db._
 // import com.wegtam.books.pfhais.tapir.models._
 // import eu.timepit.refined.auto._
@@ -44,6 +45,7 @@ import sttp.tapir.server.http4s._
 // }
 
 object ProductRoutes {
+
   val example: Product = Product(
     id = java.util.UUID.randomUUID,
     names = NonEmptySet.one(
@@ -67,7 +69,8 @@ object ProductRoutes {
   )
 
   val getProduct: Endpoint[Unit, ProductId, StatusCode, Product, Any] =
-    endpoint.get
+    endpoint
+      .get
       .in(
         "product" / path[ProductId]("id")
           .description("The ID of a product which is a UUID.")
@@ -75,17 +78,15 @@ object ProductRoutes {
       )
       .errorOut(statusCode)
       .out(
-        jsonBody[Product]
-          .description("The product associated with the given ID.")
-          .example(example)
+        jsonBody[Product].description("The product associated with the given ID.").example(example)
       )
       .description(
         "Returns the product specified by the ID given in the URL path. If the product does not exist then a HTTP 404 error is returned."
       )
 
-  val updateProduct
-      : Endpoint[Unit, (ProductId, Product), StatusCode, Unit, Any] =
-    endpoint.put
+  val updateProduct: Endpoint[Unit, (ProductId, Product), StatusCode, Unit, Any] =
+    endpoint
+      .put
       .in(
         "product" / path[ProductId]("id")
           .description("The ID of a product which is a UUID.")

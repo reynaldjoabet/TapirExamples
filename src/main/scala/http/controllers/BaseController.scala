@@ -1,7 +1,8 @@
 package http.controllers
 
-import sttp.tapir.server.ServerEndpoint
 import cats.effect._
+
+import sttp.tapir.server.ServerEndpoint
 
 trait BaseController {
 
