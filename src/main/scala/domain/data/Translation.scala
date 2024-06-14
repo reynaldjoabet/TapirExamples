@@ -2,13 +2,15 @@ package domain
 package data
 
 import cats._
+import cats.Order
+
 // import cats.derived
 import io.circe._
 import io.circe.generic.semiauto._
 import sttp.tapir.Schema
-import cats.Order
 
-/** The translation data for a product name.
+/**
+  * The translation data for a product name.
   *
   * @param lang
   *   A language code specifying the target translation.
@@ -28,14 +30,16 @@ object Translation {
 //     derived.semiauto.order[Translation]
 //   }
   implicit val order: Order[Translation] = new Order[Translation] {
+
     override def compare(x: Translation, y: Translation): Int =
       x.lang.compare(y.lang)
+
   }
 
 // we can generate a Codec based on the Schema
 // we can generate binaryCodec, Json Codec based on the Schema
   implicit val schemaForLanguageCode: Schema[LanguageCode] = Schema.string
-  implicit val schemaForProductName: Schema[ProductName] = Schema.string
+  implicit val schemaForProductName: Schema[ProductName]   = Schema.string
   // implicit val schemaFor: Schema[Translation]              = Schema.derived[Translation]
 
 }

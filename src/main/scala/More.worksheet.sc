@@ -1,8 +1,11 @@
-import sttp.tapir.server.ServerEndpoint
-import scala.concurrent.Future
-import sttp.tapir._
-import cats.effect._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import cats.effect._
+
+import sttp.tapir._
+import sttp.tapir.server.ServerEndpoint
+
 case class User(name: String)
 case class AuthenticationToken(value: String)
 case class AuthenticationError(code: Int)
@@ -17,22 +20,23 @@ def authenticate(token: AuthenticationToken) =
 val secureEndpoint = endpoint
   .securityIn(auth.bearer[String]().mapTo[AuthenticationToken])
   // returning the authentication error code to the user
-  .errorOut(plainBody[Int].mapTo[AuthenticationError])
-  .serverSecurityLogic(authenticate)
+  .errorOut(plainBody[Int].mapTo[AuthenticationError]).serverSecurityLogic(authenticate)
 
 // the errors that might occur in the /hello endpoint -
 // either a wrapped authentication error, or refusal to greet
 object HelloError {
+
   sealed trait HelloError
-  case class AuthenticationHelloError(wrapped: AuthenticationError)
-      extends HelloError
-  case class NoHelloError(val why: String) extends HelloError
+  case class AuthenticationHelloError(wrapped: AuthenticationError) extends HelloError
+  case class NoHelloError(val why: String)                          extends HelloError
+
 }
 import HelloError._
 
 // extending the base endpoint with hello-endpoint-specific inputs
 val secureHelloWorldWithLogic: ServerEndpoint[Any, Future] =
-  secureEndpoint.get
+  secureEndpoint
+    .get
     .in("hello")
     .in(query[String]("salutation"))
     .out(stringBody)

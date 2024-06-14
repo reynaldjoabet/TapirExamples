@@ -1,8 +1,9 @@
 package http.endpoints
 
+import http.responses._
 import sttp.tapir._
 import sttp.tapir.generic.auto._
-import http.responses._
+
 trait HealthEndpoint extends BaseEndpoint {
 
   val healthEndpoint: Endpoint[Unit, Unit, Throwable, String, Any] =

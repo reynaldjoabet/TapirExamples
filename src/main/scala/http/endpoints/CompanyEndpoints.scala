@@ -1,14 +1,14 @@
 package http.endpoints
 
+import domain.data._
+import http.requests._
 import sttp.tapir._
 import sttp.tapir.generic.auto._
-import http.requests._
-import domain.data._
 import sttp.tapir.json.circe._
+
 trait CompanyEndpoints extends BaseEndpoint {
 
-  val createEndpoint
-      : Endpoint[String, CreateCompanyRequest, Throwable, Company, Any] =
+  val createEndpoint: Endpoint[String, CreateCompanyRequest, Throwable, Company, Any] =
     secureBaseEndpoints
       .tag("companies")
       .name("create")
