@@ -7,7 +7,7 @@ libraryDependencies ++= Seq(
   // https://mvnrepository.com/artifact/com.softwaremill.sttp.tapir/tapir-json-circe
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe"     % "1.9.9",
   "io.circe"                    %% "circe-generic-extras" % "0.14.3",
-  "com.alejandrohdezma"         %% "tapir-anyof"          % "0.5.1"
+  "com.alejandrohdezma"         %% "tapir-anyof"          % "0.7.0"
 )
 
 scalacOptions += "-Ymacro-annotations"
